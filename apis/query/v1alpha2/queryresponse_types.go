@@ -15,6 +15,7 @@
 package v1alpha2
 
 import (
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/upbound/up-sdk-go/apis/common"
@@ -94,6 +95,12 @@ type QueryResponseObject struct {
 
 	// controlPlane is the name and namespace of the object.
 	ControlPlane *QueryResponseControlPlane `json:"controlPlane,omitempty"`
+
+	// resource is the plural name of the object's type.
+	Resource string `json:"resource,omitempty"`
+
+	// printerColumns is the list of printer columns for the object's type.
+	PrinterColumns []apiextensionsv1.CustomResourceColumnDefinition `json:"printerColumns,omitempty"`
 
 	// object is the sparse representation of the object.
 	Object *common.JSONObject `json:"object,omitempty"`
