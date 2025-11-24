@@ -281,6 +281,14 @@ type QueryObjects struct {
 	// object should be returned.
 	ControlPlane bool `json:"controlPlane,omitempty"`
 
+	// resource specifies that the plural name of the object's type should be
+	// returned.
+	Resource bool `json:"resource,omitempty"`
+
+	// printerColumns specifies that the list of printer columns for the
+	// object's type should be returned.
+	PrinterColumns bool `json:"printerColumns,omitempty"`
+
 	// object specifies how to return the object, i.e. a sparse skeleton of
 	// fields. A value of true means that all descendants of that field should
 	// be returned. Other primitive values are not allowed. If the type of

@@ -21,6 +21,7 @@ limitations under the License.
 package v1alpha2
 
 import (
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )
@@ -411,6 +412,11 @@ func (in *QueryResponseObject) DeepCopyInto(out *QueryResponseObject) {
 		in, out := &in.ControlPlane, &out.ControlPlane
 		*out = new(QueryResponseControlPlane)
 		**out = **in
+	}
+	if in.PrinterColumns != nil {
+		in, out := &in.PrinterColumns, &out.PrinterColumns
+		*out = make([]apiextensionsv1.CustomResourceColumnDefinition, len(*in))
+		copy(*out, *in)
 	}
 	if in.Object != nil {
 		in, out := &in.Object, &out.Object
