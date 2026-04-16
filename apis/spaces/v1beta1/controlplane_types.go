@@ -156,7 +156,7 @@ type SecretReference struct {
 // +kubebuilder:validation:XValidation:rule="!has(oldSelf.restore) || has(self.restore)",message="restore source can not be unset"
 // +kubebuilder:validation:XValidation:rule="has(oldSelf.restore) || !has(self.restore)",message="restore source can not be set after creation"
 // +kubebuilder:validation:XValidation:rule="!has(self.crossplane.autoUpgrade) || self.crossplane.autoUpgrade.channel != \"None\" || self.crossplane.version != \"\"",message="\"version\" cannot be empty when upgrade channel is \"None\""
-// +kubebuilder:validation:XValidation:rule="!has(oldSelf.hostNamespace) || (has(self.hostNamespace) && oldSelf.hostNamespace.name == self.hostNamespace.name)",message="hostNamespace.name is immutable"
+// +kubebuilder:validation:XValidation:rule="(!has(oldSelf.hostNamespace) && !has(self.hostNamespace)) || (has(oldSelf.hostNamespace) && has(self.hostNamespace) && oldSelf.hostNamespace.name == self.hostNamespace.name)",message="hostNamespace is immutable after creation"
 type ControlPlaneSpec struct {
 	// WriteConnectionSecretToReference specifies the namespace and name of a
 	// Secret to which any connection details for this managed resource should
