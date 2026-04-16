@@ -156,6 +156,7 @@ type SecretReference struct {
 // +kubebuilder:validation:XValidation:rule="!has(oldSelf.restore) || has(self.restore)",message="restore source can not be unset"
 // +kubebuilder:validation:XValidation:rule="has(oldSelf.restore) || !has(self.restore)",message="restore source can not be set after creation"
 // +kubebuilder:validation:XValidation:rule="!has(self.crossplane.autoUpgrade) || self.crossplane.autoUpgrade.channel != \"None\" || self.crossplane.version != \"\"",message="\"version\" cannot be empty when upgrade channel is \"None\""
+// +kubebuilder:validation:XValidation:rule="!has(oldSelf.hostNamespace) || (has(self.hostNamespace) && oldSelf.hostNamespace.name == self.hostNamespace.name)",message="hostNamespace.name is immutable"
 type ControlPlaneSpec struct {
 	// WriteConnectionSecretToReference specifies the namespace and name of a
 	// Secret to which any connection details for this managed resource should
@@ -189,6 +190,21 @@ type ControlPlaneSpec struct {
 	// Can only be updated to a compatible class, having the same declared type.
 	// +optional
 	Class string `json:"class,omitempty"`
+
+	// [[GATE:EnableHostNamespace]]
+	// HostNamespace configures the host cluster namespace for this control plane.
+	// When set, Spaces provisions the control plane into the namespace specified
+	// by hostNamespace.name. If the namespace does not exist, Spaces creates it.
+	// hostNamespace.name is immutable after creation.
+	// +optional
+	HostNamespace *HostNamespaceSpec `json:"hostNamespace,omitempty"`
+}
+
+// HostNamespaceSpec configures the host cluster namespace for a control plane.
+type HostNamespaceSpec struct {
+	// Name is the name of the host cluster namespace. If the namespace does not
+	// exist, Spaces creates it. Immutable after creation.
+	Name string `json:"name"`
 }
 
 // Restore specifies details about the backup to restore from.
