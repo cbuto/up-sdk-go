@@ -156,6 +156,7 @@ type SecretReference struct {
 // +kubebuilder:validation:XValidation:rule="!has(oldSelf.restore) || has(self.restore)",message="restore source can not be unset"
 // +kubebuilder:validation:XValidation:rule="has(oldSelf.restore) || !has(self.restore)",message="restore source can not be set after creation"
 // +kubebuilder:validation:XValidation:rule="!has(self.crossplane.autoUpgrade) || self.crossplane.autoUpgrade.channel != \"None\" || self.crossplane.version != \"\"",message="\"version\" cannot be empty when upgrade channel is \"None\""
+// +kubebuilder:validation:XValidation:rule="(!has(oldSelf.hostNamespace) && !has(self.hostNamespace)) || (has(oldSelf.hostNamespace) && has(self.hostNamespace) && oldSelf.hostNamespace.name == self.hostNamespace.name)",message="[[GATE:EnableHostNamespace]] hostNamespace is immutable after creation"
 type ControlPlaneSpec struct {
 	// WriteConnectionSecretToReference specifies the namespace and name of a
 	// Secret to which any connection details for this managed resource should
@@ -189,6 +190,45 @@ type ControlPlaneSpec struct {
 	// Can only be updated to a compatible class, having the same declared type.
 	// +optional
 	Class string `json:"class,omitempty"`
+
+	// [[GATE:EnableHostNamespace]]
+	// HostNamespace configures the host cluster namespace for this control plane.
+	// When set, Spaces provisions the control plane into the namespace specified
+	// by hostNamespace.name. If the namespace does not exist, Spaces creates it.
+	// hostNamespace.name is immutable after creation.
+	// +optional
+	HostNamespace *HostNamespaceSpec `json:"hostNamespace,omitempty"`
+}
+
+// HostNamespaceDeletionPolicy specifies what happens to the host namespace when
+// the ControlPlane is deleted.
+type HostNamespaceDeletionPolicy string
+
+const (
+	// HostNamespaceDeletionPolicyDelete deletes the namespace and all resources
+	// inside it when the ControlPlane is deleted.
+	HostNamespaceDeletionPolicyDelete HostNamespaceDeletionPolicy = "Delete"
+	// HostNamespaceDeletionPolicyOrphan preserves the namespace and all resources
+	// inside it when the ControlPlane is deleted. Cluster-scoped resources
+	// created by Spaces for this control plane are still removed.
+	HostNamespaceDeletionPolicyOrphan HostNamespaceDeletionPolicy = "Orphan"
+)
+
+// HostNamespaceSpec configures the host cluster namespace for a control plane.
+type HostNamespaceSpec struct {
+	// Name is the name of the host cluster namespace. If the namespace does not
+	// exist, Spaces creates it. Immutable after creation.
+	Name string `json:"name"`
+
+	// DeletionPolicy specifies what happens to the host namespace when the
+	// ControlPlane is deleted. Delete (the default) deletes the namespace and
+	// all resources inside it. Orphan preserves the namespace and leaves all
+	// resources in place; cluster-scoped resources created by Spaces are still
+	// removed.
+	// +optional
+	// +kubebuilder:default=Delete
+	// +kubebuilder:validation:Enum=Delete;Orphan
+	DeletionPolicy HostNamespaceDeletionPolicy `json:"deletionPolicy,omitempty"`
 }
 
 // Restore specifies details about the backup to restore from.
