@@ -218,6 +218,9 @@ const (
 type HostNamespaceSpec struct {
 	// Name is the name of the host cluster namespace. If the namespace does not
 	// exist, Spaces creates it. Immutable after creation.
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=63
+	// +kubebuilder:validation:Pattern="^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
 	Name string `json:"name"`
 
 	// DeletionPolicy specifies what happens to the host namespace when the
